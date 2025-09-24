@@ -29,11 +29,14 @@ mean_scores["y"] = mean_scores["Score"] * np.sin(mean_scores["Angle"])
 closed_data = pd.concat([mean_scores, mean_scores.iloc[[0]]])
 
 # Basis chart (polygon + punten)
-radar = (
+radar_line = (
     alt.Chart(closed_data)
-    .mark_line(closed=True, strokeWidth=2, color="steelblue")
+    .mark_line(strokeWidth=2, color="steelblue")
     .encode(x="x:Q", y="y:Q")
-    + alt.Chart(closed_data)
+)
+
+radar_points = (
+    alt.Chart(closed_data)
     .mark_point(filled=True, color="steelblue", size=60)
     .encode(x="x:Q", y="y:Q", tooltip=["Factor", "Score"])
 )
@@ -50,11 +53,11 @@ labels = (
 )
 
 # Samenvoegen
-final_chart = (radar + labels).properties(
+final_chart = (radar_line + radar_points + labels).properties(
     title="Gemiddelde scores per factor (Radar Chart)",
     width=600,
     height=600
-)
+).configure_axis(grid=False, domain=False, ticks=False, labels=False)
 
 # Tonen in Streamlit
 st.altair_chart(final_chart, use_container_width=True)
