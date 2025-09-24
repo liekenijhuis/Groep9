@@ -28,7 +28,7 @@ mean_scores["y"] = mean_scores["Score"] * np.sin(mean_scores["Angle"])
 # Data sluiten zodat de lijn een cirkel vormt
 closed_data = pd.concat([mean_scores, mean_scores.iloc[[0]]])
 
-# Basis chart (polygon + punten)
+# Radar polygon + punten
 radar_line = (
     alt.Chart(closed_data)
     .mark_line(strokeWidth=2, color="steelblue")
@@ -41,19 +41,33 @@ radar_points = (
     .encode(x="x:Q", y="y:Q", tooltip=["Factor", "Score"])
 )
 
-# Labels toevoegen op de rand
+# Labels net buiten de cirkel zetten
+label_offset = 0.3
 labels = (
-    alt.Chart(mean_scores)
-    .mark_text(align="center", baseline="middle", fontSize=12)
-    .encode(
-        x=alt.X("x:Q", axis=None),
-        y=alt.Y("y:Q", axis=None),
-        text="Factor"
-    )
+    alt.Chart(mean_scores.assign(
+        lx=(mean_scores["Score"] + label_offset) * np.cos(mean_scores["Angle"]),
+        ly=(mean_scores["Score"] + label_offset) * np.sin(mean_scores["Angle"])
+    ))
+    .mark_text(align="center", baseline="middle", fontSize=11)
+    .encode(x="lx:Q", y="ly:Q", text="Factor")
+)
+
+# Cirkelraster tekenen (3 ringen)
+rings = pd.DataFrame({
+    "radius": [2, 4, 6],  # stel schaal zelf in afhankelijk van je scores (1-5 of 1-10)
+    "Angle": list(np.linspace(0, 2*np.pi, 100))
+})
+rings["x"] = rings["radius"] * np.cos(rings["Angle"])
+rings["y"] = rings["radius"] * np.sin(rings["Angle"])
+
+radar_grid = (
+    alt.Chart(rings)
+    .mark_line(strokeDash=[2,2], color="lightgray")
+    .encode(x="x:Q", y="y:Q", detail="radius:N")
 )
 
 # Samenvoegen
-final_chart = (radar_line + radar_points + labels).properties(
+final_chart = (radar_grid + radar_line + radar_points + labels).properties(
     title="Gemiddelde scores per factor (Radar Chart)",
     width=600,
     height=600
@@ -61,3 +75,4 @@ final_chart = (radar_line + radar_points + labels).properties(
 
 # Tonen in Streamlit
 st.altair_chart(final_chart, use_container_width=True)
+
