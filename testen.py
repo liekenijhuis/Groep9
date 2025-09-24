@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import altair as alt
 
 # Data inladen
 satis = pd.read_csv("airline_passenger_satisfaction.csv")
@@ -26,7 +26,7 @@ age_range = st.slider(
     "Leeftijdsbereik",
     int(satis["Age"].min()),
     int(satis["Age"].max()),
-    (int(satis["Age"].min()), int(satis["Age"].max())),  # startwaarden
+    (int(satis["Age"].min()), int(satis["Age"].max())),
     key="age_range_slider"
 )
 
@@ -35,23 +35,26 @@ min_age, max_age = age_range
 # Filter toepassen
 filtered = satis[(satis["Age"] >= min_age) & (satis["Age"] <= max_age)]
 
-# Scatterplot maken met Plotly
-fig = px.scatter(
-    filtered,
-    x="Arrival Delay",
-    y="Departure Delay",
-    color="rating",
-    color_continuous_scale="Jet",
-    opacity=0.5,
-    title="Scatterplot van Arrival vs Departure Delay, gekleurd op Rating",
-    labels={
-        "Arrival Delay": "Arrival Delay (minuten)",
-        "Departure Delay": "Departure Delay (minuten)",
-        "rating": "Average Rating"
-    }
+# Scatterplot met Altair
+scatter = (
+    alt.Chart(filtered)
+    .mark_circle(opacity=0.4)
+    .encode(
+        x=alt.X("Arrival Delay", title="Arrival Delay (minuten)"),
+        y=alt.Y("Departure Delay", title="Departure Delay (minuten)"),
+        color=alt.Color("rating", scale=alt.Scale(scheme="turbo"), title="Average Rating"),
+        tooltip=["Age", "Arrival Delay", "Departure Delay", "rating"]
+    )
+    .properties(
+        title="Scatterplot van Arrival vs Departure Delay, gekleurd op Rating",
+        width=700,
+        height=500
+    )
 )
 
 # Plot tonen in Streamlit
-st.plotly_chart(fig, use_container_width=True)
+st.altair_chart(scatter, use_container_width=True)
 
+# Ter info de gekozen leeftijdsrange tonen
 st.write(f"Geselecteerde leeftijdsrange: {min_age} - {max_age}")
+
