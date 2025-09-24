@@ -3,8 +3,7 @@ import pandas as pd
 import altair as alt
 
 # Data inladen
-satis = pd.read_csv("airline_passenger_satisfaction.csv")
-flight = pd.read_csv("airlines_flights_data.csv")
+df = pd.read_csv("airline_passenger_satisfaction.csv")
 
 # Kolommen die meegenomen worden voor de nieuwe rating
 rating_cols = [
@@ -15,15 +14,15 @@ rating_cols = [
 ]
 
 # Nieuwe kolom 'rating' toevoegen
-satis["rating"] = satis[rating_cols].mean(axis=1)
+df["rating"] = df[rating_cols].mean(axis=1)
 
 # --- Leeftijdsfilter ---
 st.markdown("### Leeftijdsfilter")
 age_range = st.slider(
     "Leeftijdsbereik",
-    int(satis["Age"].min()),
-    int(satis["Age"].max()),
-    (int(satis["Age"].min()), int(satis["Age"].max())),
+    int(df["Age"].min()),
+    int(df["Age"].max()),
+    (int(df["Age"].min()), int(df["Age"].max())),
     key="age_range_slider"
 )
 min_age, max_age = age_range
@@ -32,17 +31,17 @@ min_age, max_age = age_range
 st.markdown("### Vlucht Afstand Filter")
 distance_range = st.slider(
     "Afstandsbereik (Flight Distance)",
-    int(satis["Flight Distance"].min()),
-    int(satis["Flight Distance"].max()),
-    (int(satis["Flight Distance"].min()), int(satis["Flight Distance"].max())),
+    int(df["Flight Distance"].min()),
+    int(df["Flight Distance"].max()),
+    (int(df["Flight Distance"].min()), int(df["Flight Distance"].max())),
     key="distance_range_slider"
 )
 min_dist, max_dist = distance_range
 
 # Filter toepassen op leeftijd én afstand
-filtered = satis[
-    (satis["Age"] >= min_age) & (satis["Age"] <= max_age) &
-    (satis["Flight Distance"] >= min_dist) & (satis["Flight Distance"] <= max_dist)
+filtered = df[
+    (df["Age"] >= min_age) & (df["Age"] <= max_age) &
+    (df["Flight Distance"] >= min_dist) & (df["Flight Distance"] <= max_dist)
 ]
 
 # Scatterplot met Altair
