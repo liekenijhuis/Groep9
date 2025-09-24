@@ -52,13 +52,13 @@ labels = (
     .encode(x="lx:Q", y="ly:Q", text="Factor")
 )
 
-# Cirkelraster tekenen (3 ringen)
-rings = pd.DataFrame({
-    "radius": [2, 4, 6],  # stel schaal zelf in afhankelijk van je scores (1-5 of 1-10)
-    "Angle": list(np.linspace(0, 2*np.pi, 100))
-})
-rings["x"] = rings["radius"] * np.cos(rings["Angle"])
-rings["y"] = rings["radius"] * np.sin(rings["Angle"])
+# ✅ Rings fix: voor elke radius alle hoeken maken
+angles = np.linspace(0, 2*np.pi, 200)
+radii = [2, 4, 6]  # kies passend bij jouw schaal (1–5 of 1–10)
+rings = pd.DataFrame([
+    {"radius": r, "Angle": a, "x": r*np.cos(a), "y": r*np.sin(a)}
+    for r in radii for a in angles
+])
 
 radar_grid = (
     alt.Chart(rings)
@@ -75,4 +75,5 @@ final_chart = (radar_grid + radar_line + radar_points + labels).properties(
 
 # Tonen in Streamlit
 st.altair_chart(final_chart, use_container_width=True)
+
 
