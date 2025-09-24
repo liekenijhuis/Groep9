@@ -17,11 +17,8 @@ rating_cols = [
 # Nieuwe kolom 'rating' toevoegen
 satis["rating"] = satis[rating_cols].mean(axis=1)
 
-# Leeftijdsfilter
+# --- Leeftijdsfilter ---
 st.markdown("### Leeftijdsfilter")
-st.write("Pas hier de minimale en maximale leeftijd aan.")
-st.write("Let op! Zorg dat de maximale leeftijd niet kleiner is dan de minimale leeftijd!")
-
 age_range = st.slider(
     "Leeftijdsbereik",
     int(satis["Age"].min()),
@@ -29,11 +26,24 @@ age_range = st.slider(
     (int(satis["Age"].min()), int(satis["Age"].max())),
     key="age_range_slider"
 )
-
 min_age, max_age = age_range
 
-# Filter toepassen
-filtered = satis[(satis["Age"] >= min_age) & (satis["Age"] <= max_age)]
+# --- Afstandsfilter ---
+st.markdown("### Vlucht Afstand Filter")
+distance_range = st.slider(
+    "Afstandsbereik (Flight Distance)",
+    int(satis["Flight Distance"].min()),
+    int(satis["Flight Distance"].max()),
+    (int(satis["Flight Distance"].min()), int(satis["Flight Distance"].max())),
+    key="distance_range_slider"
+)
+min_dist, max_dist = distance_range
+
+# Filter toepassen op leeftijd én afstand
+filtered = satis[
+    (satis["Age"] >= min_age) & (satis["Age"] <= max_age) &
+    (satis["Flight Distance"] >= min_dist) & (satis["Flight Distance"] <= max_dist)
+]
 
 # Scatterplot met Altair
 scatter = (
@@ -43,7 +53,7 @@ scatter = (
         x=alt.X("Arrival Delay", title="Arrival Delay (minuten)"),
         y=alt.Y("Departure Delay", title="Departure Delay (minuten)"),
         color=alt.Color("rating", scale=alt.Scale(scheme="turbo"), title="Average Rating"),
-        tooltip=["Age", "Arrival Delay", "Departure Delay", "rating"]
+        tooltip=["Age", "Flight Distance", "Arrival Delay", "Departure Delay", "rating"]
     )
     .properties(
         title="Scatterplot van Arrival vs Departure Delay, gekleurd op Rating",
@@ -55,6 +65,6 @@ scatter = (
 # Plot tonen in Streamlit
 st.altair_chart(scatter, use_container_width=True)
 
-# Ter info de gekozen leeftijdsrange tonen
+# Extra info tonen
 st.write(f"Geselecteerde leeftijdsrange: {min_age} - {max_age}")
-
+st.write(f"Geselecteerde vlucht afstand: {min_dist} - {max_dist}")
