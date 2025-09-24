@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
 
-
+# Data inladen
 satis = pd.read_csv("airline_passenger_satisfaction.csv")
 flight = pd.read_csv("airlines_flights_data.csv")
 
@@ -17,10 +17,9 @@ rating_cols = [
 # Nieuwe kolom 'rating' toevoegen
 satis["rating"] = satis[rating_cols].mean(axis=1)
 
-
 # Scatterplot maken
-plt.figure(figsize=(8,6))
-scatter = plt.scatter(
+fig, ax = plt.subplots(figsize=(8,6))
+scatter = ax.scatter(
     satis["Arrival Delay"], 
     satis["Departure Delay"], 
     c=satis["rating"], 
@@ -28,26 +27,29 @@ scatter = plt.scatter(
     alpha=0.4
 )
 
-plt.colorbar(scatter, label="Average Rating")
-plt.xlabel("Arrival Delay (minuten)")
-plt.ylabel("Departure Delay (minuten)")
-plt.title("Scatterplot van Arrival vs Departure Delay, gekleurd op Rating")
-plt.show()
+cbar = plt.colorbar(scatter, ax=ax)
+cbar.set_label("Average Rating")
+ax.set_xlabel("Arrival Delay (minuten)")
+ax.set_ylabel("Departure Delay (minuten)")
+ax.set_title("Scatterplot van Arrival vs Departure Delay, gekleurd op Rating")
 
+# Plot tonen in Streamlit
+st.pyplot(fig)
 
-## 1 slider met twee punten voor de leeftijd (nog niet getest)
+# Leeftijdsfilter
 st.markdown("### Leeftijdsfilter")
 st.write("Pas hier de minimale en maximale leeftijd aan.")
 st.write("Let op! Zorg dat de maximale leeftijd niet kleiner is dan de minimale leeftijd!")
 
-# Eén range slider
+# Eén range slider (gebaseerd op Age uit satis)
 age_range = st.slider(
     "Leeftijdsbereik",
-    int(df["Age"].min()),
-    int(df["Age"].max()),
-    (int(df["Age"].min()), int(df["Age"].max())),  # startwaarden: min en max
+    int(satis["Age"].min()),
+    int(satis["Age"].max()),
+    (int(satis["Age"].min()), int(satis["Age"].max())),  # startwaarden: min en max
     key="age_range_slider"
 )
 
 # min en max apart beschikbaar
 min_age, max_age = age_range
+st.write(f"Geselecteerde leeftijdsrange: {min_age} - {max_age}")
