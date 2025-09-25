@@ -41,7 +41,7 @@ for angle, score, factor in zip(angles, scores, factors + [factors[0]]):
 
 # Labels rond de cirkel
 ax.set_xticks(angles[:-1])
-ax.set_xticklabels(factors, fontsize=8, labelpad=15)  # 15 is de afstand in punten
+ax.set_xticklabels(factors, fontsize=8) 
 
 
 # Y-as schaal forceren: 0 in het midden, 5 aan de rand
