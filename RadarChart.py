@@ -25,7 +25,7 @@ scores += scores[:1]  # polygon sluiten
 angles += angles[:1]  # polygon sluiten
 
 # Plot maken
-fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
+fig, ax = plt.subplots(figsize=(7,7), subplot_kw=dict(polar=True))
 
 # Lijn + vulling
 ax.plot(angles, scores, color="teal", linewidth=2)
@@ -39,12 +39,16 @@ for angle, score, factor in zip(angles, scores, factors + [factors[0]]):
     ax.text(angle, score + 0.3, f"{score:.1f}", 
             ha="center", va="center", fontsize=8, color="black")
 
-# Labels rond de cirkel
-ax.set_xticks(angles[:-1])
-ax.set_xticklabels(factors, fontsize=8)
+# Eigen factorlabels buiten de cirkel (iets groter dan 5)
+for angle, factor in zip(angles[:-1], factors):
+    ax.text(angle, 5.2, factor, ha="center", va="center", fontsize=8, color="black")
 
 # Y-as schaal forceren: 0 in het midden, 5 aan de rand
 ax.set_ylim(0, 5)
+
+# Standaard xticks uitzetten (we plaatsen eigen labels)
+ax.set_xticks([])
+ax.set_xticklabels([])
 
 # Rasters en schaal aanpassen
 ax.set_rlabel_position(30)
