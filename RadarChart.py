@@ -34,9 +34,13 @@ ax.fill(angles, scores, color="teal", alpha=0.25)
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(factors, fontsize=8)
 
+# Y-as schaal forceren: 0 in het midden, 5 aan de rand
+ax.set_ylim(0, 5)
+
 # Rasters en schaal aanpassen
-ax.set_rlabel_position(30)  # labels iets draaien
-ax.tick_params(colors="gray", labelsize=7)
+ax.set_rlabel_position(30)
+ax.set_yticks([1, 2, 3, 4, 5])
+ax.set_yticklabels(["1", "2", "3", "4", "5"], fontsize=7, color="gray")
 ax.grid(color="lightgray", linestyle="--")
 
 # Titel
@@ -44,6 +48,7 @@ plt.title("Gemiddelde scores per factor (Radar Chart)", size=12, pad=20)
 
 # Tonen in Streamlit
 st.pyplot(fig)
+
 
 
 
