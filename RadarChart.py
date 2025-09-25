@@ -24,19 +24,8 @@ scores = mean_scores.tolist()
 scores += scores[:1]  # polygon sluiten
 angles += angles[:1]  # polygon sluiten
 
-# Eigen factorlabels buiten de cirkel (bijv. 5.4 i.p.v. 5.2)
-label_radius = 5.4  
-
-#zet de titels van de scores buiten de radar chart
-for angle, factor in zip(angles[:-1], factors):
-    ax.text(angle, label_radius, factor,
-            ha="center", va="center", fontsize=8, color="black")
-
-max_val = 5
-label_radius = max_val * 1.1  # 10% buiten de schaal
-
 # Plot maken
-fig, ax = plt.subplots(figsize=(7,7), subplot_kw=dict(polar=True))
+fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
 # Lijn + vulling
 ax.plot(angles, scores, color="teal", linewidth=2)
@@ -50,16 +39,24 @@ for angle, score, factor in zip(angles, scores, factors + [factors[0]]):
     ax.text(angle, score + 0.3, f"{score:.1f}", 
             ha="center", va="center", fontsize=8, color="black")
 
-# Eigen factorlabels buiten de cirkel (iets groter dan 5)
-for angle, factor in zip(angles[:-1], factors):
-    ax.text(angle, 5.2, factor, ha="center", va="center", fontsize=8, color="black")
+# Labels rond de cirkel
+#ax.set_xticks(angles[:-1])
+#ax.set_xticklabels(factors, fontsize=8)
 
 # Y-as schaal forceren: 0 in het midden, 5 aan de rand
-ax.set_ylim(0, 5)
+#ax.set_ylim(0, 5)
 
-# Standaard xticks uitzetten (we plaatsen eigen labels)
+# Labels rond de cirkel iets verder naar buiten plaatsen
+label_offset = 0.3  # afstand buiten de cirkel
+for angle, factor in zip(angles[:-1], factors):
+    x = np.cos(angle) * (5 + label_offset)  # 5 is de max van de y-as
+    y = np.sin(angle) * (5 + label_offset)
+    ax.text(x, y, factor, ha="center", va="center", fontsize=8)
+    
+# Verberg standaard xticklabels
 ax.set_xticks([])
-ax.set_xticklabels([])
+
+
 
 # Rasters en schaal aanpassen
 ax.set_rlabel_position(30)
