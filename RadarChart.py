@@ -47,7 +47,7 @@ ax.set_xticklabels(factors, fontsize=8)
 ax.set_ylim(0, 5)
 
 # Rasters en schaal aanpassen
-ax.set_rlabel_position(30)
+ax.set_rlabel_position(80)
 ax.set_yticks([1, 2, 3, 4, 5])
 ax.set_yticklabels(["1", "2", "3", "4", "5"], fontsize=7, color="gray")
 ax.grid(color="lightgray", linestyle="--")
