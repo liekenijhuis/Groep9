@@ -40,23 +40,11 @@ for angle, score, factor in zip(angles, scores, factors + [factors[0]]):
             ha="center", va="center", fontsize=8, color="black")
 
 # Labels rond de cirkel
-#ax.set_xticks(angles[:-1])
-#ax.set_xticklabels(factors, fontsize=8)
+ax.set_xticks(angles[:-1])
+ax.set_xticklabels(factors, fontsize=8)
 
 # Y-as schaal forceren: 0 in het midden, 5 aan de rand
-#ax.set_ylim(0, 5)
-
-# Labels rond de cirkel iets verder naar buiten plaatsen
-label_offset = 0.3  # afstand buiten de cirkel
-for angle, factor in zip(angles[:-1], factors):
-    x = np.cos(angle) * (5 + label_offset)  # 5 is de max van de y-as
-    y = np.sin(angle) * (5 + label_offset)
-    ax.text(x, y, factor, ha="center", va="center", fontsize=8)
-    
-# Verberg standaard xticklabels
-ax.set_xticks([])
-
-
+ax.set_ylim(0, 5)
 
 # Rasters en schaal aanpassen
 ax.set_rlabel_position(30)
