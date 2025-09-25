@@ -27,8 +27,17 @@ angles += angles[:1]  # polygon sluiten
 # Plot maken
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
+# Lijn + vulling
 ax.plot(angles, scores, color="teal", linewidth=2)
 ax.fill(angles, scores, color="teal", alpha=0.25)
+
+# Stippen bij elke score
+ax.scatter(angles, scores, color="teal", s=40, zorder=5)
+
+# Tekstlabels naast de stippen
+for angle, score, factor in zip(angles, scores, factors + [factors[0]]):
+    ax.text(angle, score + 0.15, f"{score:.1f}", 
+            ha="center", va="center", fontsize=7, color="black")
 
 # Labels rond de cirkel
 ax.set_xticks(angles[:-1])
@@ -48,7 +57,3 @@ plt.title("Gemiddelde scores per factor (Radar Chart)", size=12, pad=20)
 
 # Tonen in Streamlit
 st.pyplot(fig)
-
-
-
-
