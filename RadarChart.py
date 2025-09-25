@@ -24,6 +24,17 @@ scores = mean_scores.tolist()
 scores += scores[:1]  # polygon sluiten
 angles += angles[:1]  # polygon sluiten
 
+# Eigen factorlabels buiten de cirkel (bijv. 5.4 i.p.v. 5.2)
+label_radius = 5.4  
+
+#zet de titels van de scores buiten de radar chart
+for angle, factor in zip(angles[:-1], factors):
+    ax.text(angle, label_radius, factor,
+            ha="center", va="center", fontsize=8, color="black")
+
+max_val = 5
+label_radius = max_val * 1.1  # 10% buiten de schaal
+
 # Plot maken
 fig, ax = plt.subplots(figsize=(7,7), subplot_kw=dict(polar=True))
 
