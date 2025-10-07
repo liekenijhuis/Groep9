@@ -33,9 +33,12 @@ data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]
 st.write("Beschikbare brandstofcategorieën:", data["Type"].unique())
 
 
-# Omzetten naar datetime (zorgt dat dt accessor werkt)
+# Zet om naar string en verwijder eventuele .0
+data["Datum eerste toelating"] = data["Datum eerste toelating"].astype(str).str.split(".").str[0]
+
+# Converteer naar datetime met format YYYYMMDD
 data["Datum eerste toelating"] = pd.to_datetime(
-    data["Datum eerste toelating"], errors="coerce", dayfirst=True
+    data["Datum eerste toelating"], format="%Y%m%d", errors="coerce"
 )
 
 # Eventuele lege of niet-parseerbare datums verwijderen
