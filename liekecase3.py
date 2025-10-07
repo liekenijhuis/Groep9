@@ -31,7 +31,16 @@ data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]
 # Verzekeren dat Type kolom Elektrisch/Hybride/Benzine/Diesel bevat
 st.write("Beschikbare brandstofcategorieën:", data["Type"].unique())
 
-# --- GROEPEREN PER MAAND ---
+
+# Omzetten naar datetime (zorgt dat dt accessor werkt)
+data["Datum eerste toelating"] = pd.to_datetime(
+    data["Datum eerste toelating"], errors="coerce", dayfirst=True
+)
+
+# Eventuele lege of niet-parseerbare datums verwijderen
+data = data.dropna(subset=["Datum eerste toelating"])
+
+# Nu kun je Maand kolom maken
 data["Maand"] = data["Datum eerste toelating"].dt.to_period("M").dt.to_timestamp()
 
 # Tel aantal voertuigen per maand en brandstoftype
