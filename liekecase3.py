@@ -28,7 +28,7 @@ def bepaal_type(merk, uitvoering):
 data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]), axis=1)
 
 # Zorg dat we vanaf 2010 filteren
-df = df[df["EersteToelating"].dt.year >= 2010]
+df = df[df["Datum eerste toelating"].dt.year >= 2010]
 
 
 # --- CATEGORIEËN CONTROLEREN ---
