@@ -32,7 +32,7 @@ data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]
 st.write("Beschikbare brandstofcategorieën:", data["Type"].unique())
 
 # --- GROEPEREN PER MAAND ---
-data["Maand"] = data["EersteToelating"].dt.to_period("M").dt.to_timestamp()
+data["Maand"] = data["Datum eerste toelating"].dt.to_period("M").dt.to_timestamp()
 
 # Tel aantal voertuigen per maand en brandstoftype
 maand_aantal = data.groupby(["Maand", "Type"]).size().unstack(fill_value=0)
