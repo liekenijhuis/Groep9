@@ -27,6 +27,10 @@ def bepaal_type(merk, uitvoering):
 # 🧩 Pas de functie toe op je DataFrame
 data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]), axis=1)
 
+# Zorg dat we vanaf 2010 filteren
+df = df[df["EersteToelating"].dt.year >= 2010]
+
+
 # --- CATEGORIEËN CONTROLEREN ---
 # Verzekeren dat Type kolom Elektrisch/Hybride/Benzine/Diesel bevat
 st.write("Beschikbare brandstofcategorieën:", data["Type"].unique())
