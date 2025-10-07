@@ -27,9 +27,6 @@ def bepaal_type(merk, uitvoering):
 # 🧩 Pas de functie toe op je DataFrame
 data["Type"] = data.apply(lambda row: bepaal_type(row["Merk"], row["Uitvoering"]), axis=1)
 
-# Zorg dat we vanaf 2010 filteren
-data = data[data["Datum eerste toelating"].dt.year >= 2010]
-
 
 # --- CATEGORIEËN CONTROLEREN ---
 # Verzekeren dat Type kolom Elektrisch/Hybride/Benzine/Diesel bevat
@@ -43,6 +40,9 @@ data["Datum eerste toelating"] = pd.to_datetime(
 
 # Eventuele lege of niet-parseerbare datums verwijderen
 data = data.dropna(subset=["Datum eerste toelating"])
+
+# **Filteren op datum > 2010**
+data = data[data["Datum eerste toelating"].dt.year > 2010]
 
 # Nu kun je Maand kolom maken
 data["Maand"] = data["Datum eerste toelating"].dt.to_period("M").dt.to_timestamp()
