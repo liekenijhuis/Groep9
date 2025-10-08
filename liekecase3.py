@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import pickle
 
-data = pd.read_csv("auto_types.csv")
+data = pd.read_csv("duitse_automerken_JA.csv")
 
 # --- Definieer herkenningspatronen per type ---
 def bepaal_type(merk, uitvoering):
