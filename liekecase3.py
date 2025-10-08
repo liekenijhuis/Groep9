@@ -10,7 +10,7 @@ def bepaal_type(merk, uitvoering):
     m = str(merk).upper()
 
     # Elektrisch
-    if "BMW I" in m or u.startswith("E11", "0AW5", "QE2QE2G1", "QE1QE1G1") or u.startswith("HE1HE1G1") or "EV" in u or "FA1FA1MD" in u or "FA1FA1CZ" in u:
+    if "BMW I" in m or "PORSCHE" in m or u.startswith("FA1FA1CZ") or u.startswith("3EER") or u.startswith("3EDF") or u.startswith("3EDE") or u.startswith("2EER") or u.startswith("2EDF") or u.startswith("2EDE") or u.startswith("E11") or u.startswith("0AW5") or u.startswith("QE2QE2G1") or u.startswith("QE1QE1G1") or u.startswith("HE1HE1G1") or "EV" in u or "FA1FA1MD" in u or "FA1FA1CZ" in u:
         return "Elektrisch"
     
     # Hybride
