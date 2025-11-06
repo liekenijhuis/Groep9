@@ -3,8 +3,6 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-from streamlit_folium import st_folium
-from folium.plugins import MarkerCluster, FastMarkerCluster
 from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.preprocessing import StandardScaler
