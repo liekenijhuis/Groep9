@@ -1,3 +1,5 @@
+pip install --user statsmodels
+
 from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 import numpy as np
