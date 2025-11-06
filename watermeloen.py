@@ -25,9 +25,8 @@ st.subheader("Voorspelling auto's in Nederland per brandstofcategorie")
 # ---------- Interactieve instellingen ----------
 eindjaar = st.slider("Voorspellen tot jaar", 2025, 2050, 2030)
 EINDDATUM = pd.Timestamp(f"{eindjaar}-12-01")
-
-# ---------- EV groeifactor slider ----------
 ev_groeifactor = st.slider("EV groeifactor (1 = historisch, >1 = versneld)", 1.0, 3.0, 1.5)
+scenario = st.selectbox("Kies scenario voor voertuiggroei", ["Basis", "Optimistisch", "Pessimistisch"])
 
 # ---------- Type bepalen ----------
 TYPE_PATTERNS = {
@@ -128,16 +127,37 @@ for col in maand_counts.columns:
 
 sarimax_forecast = pd.DataFrame(sarimax_forecasts)
 
-# ================= ENSEMBLE =================
+# ================= ENSEMBLE WEIGHTS =================
+weights = {}
+for col in maand_counts.columns:
+    rmse_varmax = np.inf
+    rmse_sarimax = np.inf
+    
+    if varmax_fit is not None and col in varmax_fit.fittedvalues.columns:
+        rmse_varmax = np.sqrt(
+            mean_squared_error(maand_counts[col][-12:], varmax_fit.fittedvalues[col][-12:])
+        )
+    if col in sarimax_forecast.columns:
+        rmse_sarimax = np.sqrt(
+            mean_squared_error(maand_counts[col][-12:], sarimax_forecast[col][-12:])
+        )
+    total = rmse_varmax + rmse_sarimax + 1e-5
+    weights[col] = {"varmax": 1 - rmse_varmax/total, "sarimax": 1 - rmse_sarimax/total}
+
+# ================= ENSEMBLE FORECAST =================
 combined_forecast = pd.DataFrame(index=forecast_index, columns=maand_counts.columns)
 for col in maand_counts.columns:
     w = weights[col]
     combined_forecast[col] = w["varmax"]*varmax_forecast[col] + w["sarimax"]*sarimax_forecast[col]
-
 combined_forecast = combined_forecast.clip(lower=0)
 
 # ================= GROEIFACTOR EN SCENARIO =================
-# EV groeifactor en scenario toepassen
+groeifactoren = {"Elektrisch": ev_groeifactor, "Diesel": 1.0, "Benzine": 1.0}
+if scenario == "Optimistisch":
+    groeifactoren = {"Elektrisch": ev_groeifactor*1.2, "Diesel": 1.1, "Benzine": 0.9}
+elif scenario == "Pessimistisch":
+    groeifactoren = {"Elektrisch": ev_groeifactor*0.8, "Diesel": 0.9, "Benzine": 0.95}
+
 for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
