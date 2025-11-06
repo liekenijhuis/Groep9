@@ -114,9 +114,7 @@ def fit_sarimax(y, exog, future_exog):
         return pred_series, None
 
 exog = pd.DataFrame({
-    "trend": np.arange(len(maand_counts)),
-    "subsidie_factor": subsidie_data,   # hogere waarde = stimulans EV
-    "laadpunten": laadpunten_data
+    "trend": np.exp(np.linspace(0, 1, len(maand_counts)))  # stijgende trend
     }, index=maand_counts.index)
 future_exog = pd.DataFrame({"trend": np.arange(len(maand_counts), len(maand_counts)+h)}, index=forecast_index)
 
