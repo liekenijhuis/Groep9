@@ -129,17 +129,6 @@ for col in maand_counts.columns:
 sarimax_forecast = pd.DataFrame(sarimax_forecasts)
 
 # ================= ENSEMBLE =================
-# gewogen op basis van RMSE over historische laatste 12 maanden
-weights = {}
-for col in maand_counts.columns:
-    rmse_varmax = np.sqrt(mean_squared_error(maand_counts[col][-12:], varmax_fit.fittedvalues[col][-12:])) if varmax_fit else np.inf
-    rmse_sarimax = np.sqrt(mean_squared_error(maand_counts[col][-12:], sarimax_forecast[col][-12:])) if len(maand_counts) >= 12 else 1
-    total = rmse_varmax + rmse_sarimax
-    weights[col] = {
-        "varmax": (1 - rmse_varmax/(total+1e-5)),
-        "sarimax": (1 - rmse_sarimax/(total+1e-5))
-    }
-
 combined_forecast = pd.DataFrame(index=forecast_index, columns=maand_counts.columns)
 for col in maand_counts.columns:
     w = weights[col]
@@ -147,33 +136,37 @@ for col in maand_counts.columns:
 
 combined_forecast = combined_forecast.clip(lower=0)
 
-# ================= SCENARIO GROEIFACTOREN =================
-scenario = st.selectbox(
-    "Kies scenario voor voertuiggroei",
-    options=["Basis", "Optimistisch", "Pessimistisch"]
-)
-
-# Default groeifactoren
-groeifactoren = {"Elektrisch": ev_groeifactor, "Diesel": 1.0, "Benzine": 1.0}
-
-if scenario == "Optimistisch":
-    groeifactoren = {"Elektrisch": ev_groeifactor*1.2, "Diesel": 1.1, "Benzine": 0.9}
-elif scenario == "Pessimistisch":
-    groeifactoren = {"Elektrisch": ev_groeifactor*0.8, "Diesel": 0.9, "Benzine": 0.95}
-
+# ================= GROEIFACTOR EN SCENARIO =================
+# EV groeifactor en scenario toepassen
 for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
 
-# ================= Verbod op nieuwe Benzine/Diesel vanaf 2035 =================
+# ================= VERBOD + OVERSCHUIFING NAAR EV =================
 verbod_jaar = 2035
-for col in ["Benzine", "Diesel"]:
-    if col in combined_forecast.columns:
-        # Stel alle maanden vanaf jan 2035 op 0
-        combined_forecast.loc[combined_forecast.index.year >= verbod_jaar, col] = 0
+
+# Stap 1: overschuiven en verbod toepassen
+verbod_maanden = combined_forecast.index.year >= verbod_jaar
+overschuif = combined_forecast.loc[verbod_maanden, ["Benzine","Diesel"]].sum(axis=1)
+combined_forecast.loc[verbod_maanden, ["Benzine","Diesel"]] = 0
+if "Elektrisch" in combined_forecast.columns:
+    combined_forecast.loc[verbod_maanden, "Elektrisch"] += overschuif
+
+# Stap 2: CI aanpassen (optioneel voor correcte uitlijning)
+for col in categorieen:
+    ci = sarimax_cis.get(col)
+    if ci is not None:
+        if col in ["Benzine","Diesel"]:
+            # Geen CI tonen na verbod
+            ci.loc[verbod_maanden, :] = np.nan
+        elif col == "Elektrisch":
+            # Voeg overschuivende voertuigen toe aan EV CI
+            ci.iloc[:,0] += overschuif.values
+            ci.iloc[:,1] += overschuif.values
 
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
+
 
 # ================= PLOT =================
 categorieen = st.multiselect(
