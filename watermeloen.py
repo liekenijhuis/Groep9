@@ -113,9 +113,7 @@ def fit_sarimax(y, exog, future_exog):
         pred_series = pd.Series(b + m*future_x, index=future_exog.index)
         return pred_series, None
 
-exog = pd.DataFrame({
-    "trend": np.exp(np.linspace(0, 1, len(maand_counts)))  # stijgende trend
-    }, index=maand_counts.index)
+exog = pd.DataFrame({"trend": np.arange(len(maand_counts))}, index=maand_counts.index)
 future_exog = pd.DataFrame({"trend": np.arange(len(maand_counts), len(maand_counts)+h)}, index=forecast_index)
 
 sarimax_forecasts = {}
