@@ -27,6 +27,7 @@ eindjaar = st.slider("Voorspellen tot jaar", 2025, 2050, 2030)
 EINDDATUM = pd.Timestamp(f"{eindjaar}-12-01")
 ev_groeifactor = st.slider("EV groeifactor (1 = historisch, >1 = versneld)", 1.0, 3.0, 1.5)
 scenario = st.selectbox("Kies scenario voor voertuiggroei", ["Basis", "Optimistisch", "Pessimistisch"])
+verbod_jaar = st.slider("Verbod op nieuwe Benzine/Diesel auto’s vanaf jaar", 2030, 2040, 2035)
 
 # ---------- Type bepalen ----------
 TYPE_PATTERNS = {
