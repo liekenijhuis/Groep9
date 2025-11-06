@@ -18,47 +18,6 @@ import plotly.graph_objects as go
 def load_data():
     df_auto = pd.read_csv("duitse_automerken_JA.csv")
     return df_auto
-
-@st.cache_data(ttl=86400)
-def get_laadpalen_data(lat: float, lon: float, radius: float) -> pd.DataFrame:
-    """Haalt laadpalen binnen een straal op."""
-    url = "https://api.openchargemap.io/v3/poi/"
-    params = {
-        "output": "json",
-        "countrycode": "NL",
-        "latitude": lat,
-        "longitude": lon,
-        "distance": radius,
-        "maxresults": 5000,
-        "compact": True,
-        "verbose": False,
-        "key": "bbc1c977-6228-42fc-b6af-5e5f71be11a5"
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    data = response.json()
-    df = pd.json_normalize(data)
-    df = df.dropna(subset=['AddressInfo.Latitude', 'AddressInfo.Longitude'])
-    return df
-
-@st.cache_data(ttl=86400)
-def get_all_laadpalen_nederland() -> pd.DataFrame:
-    """Haalt laadpalen van heel Nederland op (voor grafieken)."""
-    url = "https://api.openchargemap.io/v3/poi/"
-    params = {
-        "output": "json",
-        "countrycode": "NL",
-        "maxresults": 10000,
-        "compact": True,
-        "verbose": False,
-        "key": "bbc1c977-6228-42fc-b6af-5e5f71be11a5"
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    data = response.json()
-    df = pd.json_normalize(data)
-    return df
-
 df_auto = load_data()
 
 # ------------------- Pagina 3 --------------------------
