@@ -219,6 +219,16 @@ if not categorieen:
 colors = {"Elektrisch": "green", "Diesel": "blue", "Benzine": "red"}
 fig = go.Figure()
 
+# --- VEILIGHEIDSNET ---
+try:
+    categorieen
+except NameError:
+    st.warning("⚠️ 'categorieen' was niet gedefinieerd — herstellen met standaardwaarden.")
+    if "maand_counts" in locals() and not maand_counts.empty:
+        categorieen = maand_counts.columns.tolist()
+    else:
+        categorieen = ["Elektrisch", "Diesel", "Benzine"]
+
 for col in categorieen:
     # Historisch
     fig.add_trace(go.Scatter(
