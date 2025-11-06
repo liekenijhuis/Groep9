@@ -26,6 +26,9 @@ st.subheader("Voorspelling auto's in Nederland per brandstofcategorie")
 eindjaar = st.slider("Voorspellen tot jaar", 2025, 2050, 2030)
 EINDDATUM = pd.Timestamp(f"{eindjaar}-12-01")
 
+# ---------- EV groeifactor slider ----------
+ev_groeifactor = st.slider("EV groeifactor (1 = historisch, >1 = versneld)", 1.0, 3.0, 1.5)
+
 # ---------- Type bepalen ----------
 TYPE_PATTERNS = {
     "Elektrisch": ["BMW I", "PORSCHE", "EV", "FA1FA1MD"],
@@ -143,6 +146,12 @@ for col in maand_counts.columns:
     combined_forecast[col] = w["varmax"]*varmax_forecast[col] + w["sarimax"]*sarimax_forecast[col]
 
 combined_forecast = combined_forecast.clip(lower=0)
+
+# ================= GROEIFACTOR VOOR EV =================
+if "Elektrisch" in combined_forecast.columns:
+    combined_forecast["Elektrisch"] *= ev_groeifactor
+
+# ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
 # ================= PLOT =================
