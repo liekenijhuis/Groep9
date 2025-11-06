@@ -190,12 +190,18 @@ forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
 
 # ================= PLOT =================
+if len(maand_counts.columns) == 0:
+    st.error("⚠ Geen brandstoftypes beschikbaar in de dataset.")
+    st.stop()
+    
 categorieen = st.multiselect(
     "Kies brandstoftypes om te tonen",
     options=maand_counts.columns.tolist(),
     default=maand_counts.columns.tolist()
 )
-
+if not categorieen:
+    categorieen = maand_counts.columns.tolist()
+    
 colors = {"Elektrisch":"green", "Diesel":"blue", "Benzine":"red"}
 
 fig = go.Figure()
