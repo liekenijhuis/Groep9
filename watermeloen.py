@@ -3,7 +3,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 import numpy as np
 import pandas as pd
 # ------------------- Pagina 3 --------------------------
-elif page == "📊 Voorspellend model":
+#elif page == "📊 Voorspellend model":
     st.markdown("## Voorspellend Model")
     st.markdown("---")
     st.subheader("Voorspelling auto's in Nederland per brandstofcategorie")
