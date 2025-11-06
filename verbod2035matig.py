@@ -210,15 +210,9 @@ for col in categorieen:
     # Confidence interval
     ci = sarimax_cis.get(col)
     if ci is not None:
-        # Verberg CI vanaf 2035 voor Benzine en Diesel
-        if col in ["Benzine", "Diesel"]:
-            ci = ci[ci.index.year < 2035]
-            if ci.empty:
-                continue  # Geen CI om te tekenen
-
         last_hist = cumul_hist.iloc[-1][col]
-        ci_lower = forecast_cum[col].reindex(ci.index) - combined_forecast[col].reindex(ci.index) + ci.iloc[:, 0]
-        ci_upper = forecast_cum[col].reindex(ci.index) - combined_forecast[col].reindex(ci.index) + ci.iloc[:, 1]
+        ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 0]
+        ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 1]
 
         fill_color = (
             "rgba(0,128,0,0.2)" if col == "Elektrisch"
