@@ -194,17 +194,21 @@ for col in categorieen:
     # Confidence interval
     ci = sarimax_cis.get(col)
     if ci is not None:
+        ci_cum_lower = cumul_hist.iloc[-1][col] + ci.iloc[:,0].cumsum()
+        ci_cum_upper = cumul_hist.iloc[-1][col] + ci.iloc[:,1].cumsum()
+
         fill_color = "rgba(0,128,0,0.2)" if col=="Elektrisch" else \
-                     "rgba(0,0,255,0.2)" if col=="Diesel" else \
-                     "rgba(255,0,0,0.2)"
+                 "rgba(0,0,255,0.2)" if col=="Diesel" else \
+                 "rgba(255,0,0,0.2)"
+    
         fig.add_trace(go.Scatter(
-            x=forecast_index.tolist() + forecast_index[::-1].tolist(),
-            y=ci.iloc[:,0].tolist() + ci.iloc[:,1][::-1].tolist(),
-            fill='toself',
-            fillcolor=fill_color,
-            line=dict(color='rgba(255,255,255,0)'),
-            showlegend=False,
-            name=f"{col} CI"
+        x=list(forecast_index) + list(forecast_index[::-1]),
+        y=list(ci_cum_lower) + list(ci_cum_upper[::-1]),
+        fill='toself',
+        fillcolor=fill_color,
+        line=dict(color='rgba(255,255,255,0)'),
+        showlegend=False,
+        name=f"{col} CI"
         ))
 
 fig.update_layout(
