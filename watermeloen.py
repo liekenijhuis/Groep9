@@ -171,18 +171,18 @@ for col in categorieen:
     # Confidence interval
     ci = sarimax_cis.get(col)
     if ci is not None:
-    fill_color = "rgba(0,128,0,0.2)" if col=="Elektrisch" else \
-                 "rgba(0,0,255,0.2)" if col=="Diesel" else \
-                 "rgba(255,0,0,0.2)"
-    fig.add_trace(go.Scatter(
-        x=forecast_index.tolist() + forecast_index[::-1].tolist(),
-        y=ci.iloc[:,0].tolist() + ci.iloc[:,1][::-1].tolist(),
-        fill='toself',
-        fillcolor=fill_color,
-        line=dict(color='rgba(255,255,255,0)'),
-        showlegend=False,
-        name=f"{col} CI"
-    ))
+        fill_color = "rgba(0,128,0,0.2)" if col=="Elektrisch" else \
+                     "rgba(0,0,255,0.2)" if col=="Diesel" else \
+                     "rgba(255,0,0,0.2)"
+        fig.add_trace(go.Scatter(
+            x=forecast_index.tolist() + forecast_index[::-1].tolist(),
+            y=ci.iloc[:,0].tolist() + ci.iloc[:,1][::-1].tolist(),
+            fill='toself',
+            fillcolor=fill_color,
+            line=dict(color='rgba(255,255,255,0)'),
+            showlegend=False,
+            name=f"{col} CI"
+        ))
 
 fig.update_layout(
     title=f"Voertuigregistraties per brandstoftype — Historisch + gecombineerde voorspelling tot {eindjaar}",
