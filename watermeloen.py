@@ -2,6 +2,11 @@ git add requirements.txt
 git commit -m "Add requirements for Streamlit Cloud"
 git push
 
+from statsmodels.tsa.statespace.varmax import VARMAX
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+import numpy as np
+import pandas as pd
+
 # ------------------- Pagina 3 --------------------------
 #elif page == "📊 Voorspellend model":
 st.markdown("## Voorspellend Model")
