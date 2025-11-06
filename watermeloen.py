@@ -164,6 +164,22 @@ for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
 
+# ================== CATEGORIE SELECTIE ==================
+alle_categorieen = maand_counts.columns.tolist()
+if not alle_categorieen:
+    st.error("⚠ Geen brandstoftypes gevonden in dataset.")
+    st.stop()
+
+categorieen = st.multiselect(
+    "Kies brandstoftypes om te tonen",
+    options=alle_categorieen,
+    default=alle_categorieen
+)
+
+# Zorg dat categorieen nooit leeg of niet gedefinieerd is
+if not categorieen:
+    categorieen = alle_categorieen
+
 # ==============================================================
 # 🚫 VERBOD + OVERSCHUIVING NAAR EV
 # ==============================================================
