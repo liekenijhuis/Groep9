@@ -172,7 +172,12 @@ for col in combined_forecast.columns:
 verbod_jaar = 2035
 for col in ["Benzine", "Diesel"]:
     if col in combined_forecast.columns:
-        combined_forecast.loc[combined_forecast.index.year >= verbod_jaar, col] = 0
+        mask = combined_forecast.index.year >= verbod_jaar
+        # Voeg de “niet-verkochte” auto's toe aan Elektrisch
+        if "Elektrisch" in combined_forecast.columns:
+            combined_forecast.loc[mask, "Elektrisch"] += combined_forecast.loc[mask, col]
+        # Zet Benzine/Diesel op 0
+        combined_forecast.loc[mask, col] = 0
 
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
