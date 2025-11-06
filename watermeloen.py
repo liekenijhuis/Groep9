@@ -147,9 +147,23 @@ for col in maand_counts.columns:
 
 combined_forecast = combined_forecast.clip(lower=0)
 
-# ================= GROEIFACTOR VOOR EV =================
-if "Elektrisch" in combined_forecast.columns:
-    combined_forecast["Elektrisch"] *= ev_groeifactor
+# ================= SCENARIO GROEIFACTOREN =================
+scenario = st.selectbox(
+    "Kies scenario voor voertuiggroei",
+    options=["Basis", "Optimistisch", "Pessimistisch"]
+)
+
+# Default groeifactoren
+groeifactoren = {"Elektrisch": ev_groeifactor, "Diesel": 1.0, "Benzine": 1.0}
+
+if scenario == "Optimistisch":
+    groeifactoren = {"Elektrisch": ev_groeifactor*1.2, "Diesel": 1.1, "Benzine": 0.9}
+elif scenario == "Pessimistisch":
+    groeifactoren = {"Elektrisch": ev_groeifactor*0.8, "Diesel": 0.9, "Benzine": 0.95}
+
+for col in combined_forecast.columns:
+    factor = groeifactoren.get(col, 1.0)
+    combined_forecast[col] *= factor
 
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
