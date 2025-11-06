@@ -209,8 +209,18 @@ for col in categorieen:
     ci = sarimax_cis.get(col)
     if ci is not None:
         last_hist = cumul_hist.iloc[-1][col]
-        ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 0]
-        ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 1]
+
+        # Mask voor na 2035
+        mask = forecast_index.year >= verbod_jaar
+
+        if col == "Elektrisch":
+            # Voor Elektrisch: gewone CI berekening
+            ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 0]
+            ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 1]
+        else:
+            # Voor Benzine/Diesel: CI constant houden vanaf 2035
+            ci_lower = np.full(len(forecast_index), last_hist)
+            ci_upper = np.full(len(forecast_index), last_hist)
 
         fill_color = (
             "rgba(0,128,0,0.2)" if col == "Elektrisch"
@@ -237,3 +247,4 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
