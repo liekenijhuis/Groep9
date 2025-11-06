@@ -1,11 +1,20 @@
 import streamlit as st
-import warnings
 import pandas as pd
+import plotly.express as px
 import numpy as np
-import plotly.graph_objects as go
+import folium
+import requests
+import re
+from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster, FastMarkerCluster
 from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import warnings
+import pickle
+import io
+import plotly.graph_objects as go
 
 # ------------------- Pagina 3 --------------------------
 #elif page == "📊 Voorspellend model":
