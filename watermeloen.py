@@ -196,8 +196,8 @@ for col in categorieen:
     if ci is not None:
         # Shift CI naar laatste historische cumulatieve waarde
         last_hist = cumul_hist.iloc[-1][col]
-        ci_lower = last_hist + ci.iloc[:,0]  # maandelijkse lower bound
-        ci_upper = last_hist + ci.iloc[:,1]  # maandelijkse upper bound
+        ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,0]
+        ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,1]
 
         fill_color = "rgba(0,128,0,0.2)" if col=="Elektrisch" else \
                      "rgba(0,0,255,0.2)" if col=="Diesel" else \
