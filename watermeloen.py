@@ -182,13 +182,27 @@ for col in maand_counts.columns:
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
-# ================= PLOT =================
+# ================= VEILIGE PLOT =================
+if maand_counts.empty or combined_forecast.empty:
+    st.error("⚠ Geen data beschikbaar om te plotten.")
+    st.stop()
+
+# Zorg dat categorieën altijd bestaan
+alle_categorieen = maand_counts.columns.tolist()
+if len(alle_categorieen) == 0:
+    st.error("⚠ Geen brandstoftypes gevonden in dataset.")
+    st.stop()
+
 categorieen = st.multiselect(
     "Kies brandstoftypes om te tonen",
-    options=maand_counts.columns.tolist(),
-    default=maand_counts.columns.tolist()
+    options=alle_categorieen,
+    default=alle_categorieen
 )
+if not categorieen:
+    st.warning("⚠ Geen brandstoftypes geselecteerd, standaard tonen we alles.")
+    categorieen = alle_categorieen
 
+# ================= PLOT =================
 colors = {"Elektrisch":"green", "Diesel":"blue", "Benzine":"red"}
 fig = go.Figure()
 
@@ -205,25 +219,32 @@ for col in categorieen:
         mode="lines", name=f"{col} (voorspelling)",
         line=dict(color=colors.get(col,"grey"), dash="dash", width=3)
     ))
+
     # Confidence interval
     ci = sarimax_cis.get(col)
-    if ci is not None:
-        fill_color = "rgba(0,128,0,0.15)" if col=="Elektrisch" else \
-                     "rgba(0,0,255,0.15)" if col=="Diesel" else \
-                     "rgba(255,0,0,0.15)"
+    if ci is not None and not ci.isna().all().all():
+        fill_color = (
+            "rgba(0,128,0,0.15)" if col == "Elektrisch" else
+            "rgba(0,0,255,0.15)" if col == "Diesel" else
+            "rgba(255,0,0,0.15)"
+        )
         fig.add_trace(go.Scatter(
             x=list(forecast_index) + list(forecast_index[::-1]),
             y=list(ci.iloc[:,0]) + list(ci.iloc[:,1][::-1]),
-           
-
-
+            fill="toself",
+            fillcolor=fill_color,
+            line=dict(color="rgba(255,255,255,0)"),
+            showlegend=False,
+            name=f"{col} CI"
+        ))
 
 fig.update_layout(
-    title=f"Voertuigregistraties per brandstoftype — Historisch + gecombineerde voorspelling tot {eindjaar}",
+    title=f"Voertuigregistraties per brandstoftype — Historisch + voorspelling tot {eindjaar}",
     xaxis_title="Jaar",
     yaxis_title="Aantal voertuigen (cumulatief)",
     hovermode="x unified",
-    height=720
+    height=700,
+    legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
 )
 
 st.plotly_chart(fig, use_container_width=True)
