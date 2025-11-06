@@ -168,18 +168,17 @@ for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
 
+# ================= CUMULATIEF =================
+forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
+
 # ================= Geen verdere groei na 2035 =================
 verbod_jaar = 2035
 for col in ["Benzine", "Diesel", "Elektrisch"]:
-    if col in combined_forecast.columns:
-        # Houd waarde constant vanaf 2035
-        laatste_waarde = forecast_cum.loc[forecast_cum.index.year == verbod_jaar - 1, col].iloc[-1]
-        combined_forecast.loc[combined_forecast.index.year >= verbod_jaar, col] = 0
-        forecast_cum.loc[forecast_cum.index.year >= verbod_jaar, col] = laatste_waarde
-
-
-# ================= CUMULATIEF =================
-forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
+    if col in forecast_cum.columns:
+        mask = forecast_cum.index.year >= verbod_jaar
+        if mask.any():
+            laatste_waarde = forecast_cum.loc[~mask, col].iloc[-1]  # waarde van 2034
+            forecast_cum.loc[mask, col] = laatste_waarde
 
 # ================= PLOT =================
 categorieen = st.multiselect(
