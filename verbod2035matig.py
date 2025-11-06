@@ -205,11 +205,10 @@ for col in categorieen:
         mode="lines", name=f"{col} (voorspelling)",
         line=dict(color=colors.get(col, "grey"), dash="dash", width=3)
     ))
+
     # Confidence interval
     ci = sarimax_cis.get(col)
     if ci is not None:
-        last_hist = cumul_hist.iloc[-1][col]
-
         # Mask voor na 2035
         mask = forecast_index.year >= verbod_jaar
 
@@ -218,9 +217,18 @@ for col in categorieen:
             ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 0]
             ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 1]
         else:
-            # Voor Benzine/Diesel: CI constant houden vanaf 2035
-            ci_lower = np.full(len(forecast_index), last_hist)
-            ci_upper = np.full(len(forecast_index), last_hist)
+            # Voor Benzine/Diesel: CI behouden tot 2034, daarna constant vanaf 2035
+            ci_lower = ci.iloc[:, 0].copy()
+            ci_upper = ci.iloc[:, 1].copy()
+
+            # Vanaf 2035 constant maken
+            if mask.any():
+                ci_lower[mask] = ci_lower[mask][0]
+                ci_upper[mask] = ci_upper[mask][0]
+
+            # Shift CI naar cumulatieve forecast
+            ci_lower = forecast_cum[col] - combined_forecast[col] + ci_lower
+            ci_upper = forecast_cum[col] - combined_forecast[col] + ci_upper
 
         fill_color = (
             "rgba(0,128,0,0.2)" if col == "Elektrisch"
