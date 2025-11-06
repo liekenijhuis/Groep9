@@ -103,7 +103,6 @@ def fit_sarimax(y, exog, future_exog):
             pred_ci = fit.get_forecast(steps=len(future_exog), exog=future_exog).conf_int()
             return pred_mean, pred_ci
         except:
-            # fallback lineair
             x = np.arange(len(y))
             m, b = np.polyfit(x, y, 1)
             future_x = np.arange(len(y), len(y)+len(future_exog))
@@ -152,7 +151,7 @@ for col in maand_counts.columns:
     combined_forecast[col] = w["varmax"]*varmax_forecast[col] + w["sarimax"]*sarimax_forecast[col]
 combined_forecast = combined_forecast.clip(lower=0)
 
-# ================= GROEIFACTOR EN SCENARIO =================
+# ================= GROEIFACTOR + SCENARIO =================
 groeifactoren = {"Elektrisch": ev_groeifactor, "Diesel": 1.0, "Benzine": 1.0}
 if scenario == "Optimistisch":
     groeifactoren = {"Elektrisch": ev_groeifactor*1.2, "Diesel": 1.1, "Benzine": 0.9}
@@ -163,48 +162,36 @@ for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
 
-# ================= VERBOD + OVERSCHUIFING NAAR EV =================
-verbod_jaar = 2035
-
-# Stap 1: overschuiven en verbod toepassen
+# ================= VERBOD + OVERSCHUIFING =================
 verbod_maanden = combined_forecast.index.year >= verbod_jaar
 overschuif = combined_forecast.loc[verbod_maanden, ["Benzine","Diesel"]].sum(axis=1)
 combined_forecast.loc[verbod_maanden, ["Benzine","Diesel"]] = 0
 if "Elektrisch" in combined_forecast.columns:
     combined_forecast.loc[verbod_maanden, "Elektrisch"] += overschuif
 
-# Stap 2: CI aanpassen (optioneel voor correcte uitlijning)
-for col in categorieen:
+# Pas CI aan
+for col in maand_counts.columns:
     ci = sarimax_cis.get(col)
     if ci is not None:
         if col in ["Benzine","Diesel"]:
-            # Geen CI tonen na verbod
             ci.loc[verbod_maanden, :] = np.nan
         elif col == "Elektrisch":
-            # Voeg overschuivende voertuigen toe aan EV CI
             ci.iloc[:,0] += overschuif.values
             ci.iloc[:,1] += overschuif.values
 
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
-
 # ================= PLOT =================
-if len(maand_counts.columns) == 0:
-    st.error("⚠ Geen brandstoftypes beschikbaar in de dataset.")
-    st.stop()
-    
 categorieen = st.multiselect(
     "Kies brandstoftypes om te tonen",
     options=maand_counts.columns.tolist(),
     default=maand_counts.columns.tolist()
 )
-if not categorieen:
-    categorieen = maand_counts.columns.tolist()
-    
-colors = {"Elektrisch":"green", "Diesel":"blue", "Benzine":"red"}
 
+colors = {"Elektrisch":"green", "Diesel":"blue", "Benzine":"red"}
 fig = go.Figure()
+
 for col in categorieen:
     # Historisch
     fig.add_trace(go.Scatter(
@@ -221,24 +208,14 @@ for col in categorieen:
     # Confidence interval
     ci = sarimax_cis.get(col)
     if ci is not None:
-        # Shift CI naar laatste historische cumulatieve waarde
-        last_hist = cumul_hist.iloc[-1][col]
-        ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,0]
-        ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,1]
-
-        fill_color = "rgba(0,128,0,0.2)" if col=="Elektrisch" else \
-                     "rgba(0,0,255,0.2)" if col=="Diesel" else \
-                     "rgba(255,0,0,0.2)"
-    
+        fill_color = "rgba(0,128,0,0.15)" if col=="Elektrisch" else \
+                     "rgba(0,0,255,0.15)" if col=="Diesel" else \
+                     "rgba(255,0,0,0.15)"
         fig.add_trace(go.Scatter(
             x=list(forecast_index) + list(forecast_index[::-1]),
-            y=list(ci_lower) + list(ci_upper[::-1]),
-            fill='toself',
-            fillcolor=fill_color,
-            line=dict(color='rgba(255,255,255,0)'),
-            showlegend=False,
-            name=f"{col} CI"
-        ))
+            y=list(ci.iloc[:,0]) + list(ci.iloc[:,1][::-1]),
+           
+
 
 
 fig.update_layout(
