@@ -173,7 +173,7 @@ forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
 # ================= Geen verdere groei na 2035 =================
 verbod_jaar = 2035
-for col in ["Benzine", "Diesel", "Elektrisch"]:
+for col in ["Benzine", "Diesel"]:
     if col in forecast_cum.columns:
         mask = forecast_cum.index.year >= verbod_jaar
         if mask.any():
