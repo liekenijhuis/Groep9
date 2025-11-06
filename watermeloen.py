@@ -4,51 +4,51 @@ import numpy as np
 import pandas as pd
 # ------------------- Pagina 3 --------------------------
 #elif page == "📊 Voorspellend model":
-    st.markdown("## Voorspellend Model")
-    st.markdown("---")
-    st.subheader("Voorspelling auto's in Nederland per brandstofcategorie")
+st.markdown("## Voorspellend Model")
+st.markdown("---")
+st.subheader("Voorspelling auto's in Nederland per brandstofcategorie")
 
-    warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")
 
-    # ---------- Interactieve instellingen ----------
-    eindjaar = st.slider("Voorspellen tot jaar", 2025, 2050, 2030)
-    EINDDATUM = pd.Timestamp(f"{eindjaar}-12-01")
+# ---------- Interactieve instellingen ----------
+eindjaar = st.slider("Voorspellen tot jaar", 2025, 2050, 2030)
+EINDDATUM = pd.Timestamp(f"{eindjaar}-12-01")
 
-    # ---------- Kopie gebruiken ----------
-    df_auto_kopie = df_auto.copy()
+# ---------- Kopie gebruiken ----------
+df_auto_kopie = df_auto.copy()
 
-    # ---------- Type bepalen ----------
-    def bepaal_type(merk, uitvoering):
-        u = str(uitvoering).upper()
-        m = str(merk).upper()
-        if ("BMW I" in m or "PORSCHE" in m or
-            u.startswith(("FA1FA1CZ","3EER","3EDF","3EDE","2EER","2EDF","2EDE",
-                          "E11","0AW5","QE2QE2G1","QE1QE1G1","HE1HE1G1")) or
-            "EV" in u or "FA1FA1MD" in u):
-            return "Elektrisch"
-        if "DIESEL" in u or "TDI" in u or "CDI" in u or "DPE" in u or u.startswith("D"):
-            return "Diesel"
-        return "Benzine"
+# ---------- Type bepalen ----------
+def bepaal_type(merk, uitvoering):
+     u = str(uitvoering).upper()
+     m = str(merk).upper()
+     if ("BMW I" in m or "PORSCHE" in m or
+        u.startswith(("FA1FA1CZ","3EER","3EDF","3EDE","2EER","2EDF","2EDE",
+                      "E11","0AW5","QE2QE2G1","QE1QE1G1","HE1HE1G1")) or
+        "EV" in u or "FA1FA1MD" in u):
+         return "Elektrisch"
+     if "DIESEL" in u or "TDI" in u or "CDI" in u or "DPE" in u or u.startswith("D"):
+         return "Diesel"
+     return "Benzine"
 
-    df_auto_kopie["Type"] = df_auto_kopie.apply(
-        lambda r: bepaal_type(r.get("Merk",""), r.get("Uitvoering","")), axis=1
-    )
+df_auto_kopie["Type"] = df_auto_kopie.apply(
+    lambda r: bepaal_type(r.get("Merk",""), r.get("Uitvoering","")), axis=1
+)
 
-    # ---------- Datums opschonen ----------
-    df_auto_kopie["Datum eerste toelating"] = df_auto_kopie["Datum eerste toelating"].astype(str).str.split(".").str[0]
-    df_auto_kopie["Datum eerste toelating"] = pd.to_datetime(
-        df_auto_kopie["Datum eerste toelating"], format="%Y%m%d", errors="coerce"
-    )
+# ---------- Datums opschonen ----------
+df_auto_kopie["Datum eerste toelating"] = df_auto_kopie["Datum eerste toelating"].astype(str).str.split(".").str[0]
+df_auto_kopie["Datum eerste toelating"] = pd.to_datetime(
+    df_auto_kopie["Datum eerste toelating"], format="%Y%m%d", errors="coerce"
+)
 
-    # ---------- Filteren en groeperen ----------
-    df_auto_kopie2 = df_auto_kopie.dropna(subset=["Datum eerste toelating"])
-    df_auto_kopie2 = df_auto_kopie2[df_auto_kopie2["Datum eerste toelating"].dt.year > 2010]
-    df_auto_kopie2["Maand"] = df_auto_kopie2["Datum eerste toelating"].dt.to_period("M").dt.to_timestamp()
+# ---------- Filteren en groeperen ----------
+df_auto_kopie2 = df_auto_kopie.dropna(subset=["Datum eerste toelating"])
+df_auto_kopie2 = df_auto_kopie2[df_auto_kopie2["Datum eerste toelating"].dt.year > 2010]
+df_auto_kopie2["Maand"] = df_auto_kopie2["Datum eerste toelating"].dt.to_period("M").dt.to_timestamp()
 
-    maand_counts_charging = df_auto_kopie2.groupby(["Maand", "Type"]).size().unstack(fill_value=0).sort_index()
-    if maand_counts_charging.empty:
-        st.error("⚠ Geen bruikbare data gevonden in dataset na 2010.")
-        st.stop()
+maand_counts_charging = df_auto_kopie2.groupby(["Maand", "Type"]).size().unstack(fill_value=0).sort_index()
+if maand_counts_charging.empty:
+    st.error("⚠ Geen bruikbare data gevonden in dataset na 2010.")
+    st.stop()
 
     # ---------- Historische cumulatieven ----------
 
