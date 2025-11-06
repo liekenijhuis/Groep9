@@ -165,6 +165,13 @@ for col in combined_forecast.columns:
     factor = groeifactoren.get(col, 1.0)
     combined_forecast[col] *= factor
 
+# ================= Verbod op nieuwe Benzine/Diesel vanaf 2035 =================
+verbod_jaar = 2035
+for col in ["Benzine", "Diesel"]:
+    if col in combined_forecast.columns:
+        # Stel alle maanden vanaf jan 2035 op 0
+        combined_forecast.loc[combined_forecast.index.year >= verbod_jaar, col] = 0
+
 # ================= CUMULATIEF =================
 forecast_cum = cumul_hist.iloc[-1] + combined_forecast.cumsum()
 
