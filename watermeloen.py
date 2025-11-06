@@ -2,9 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
-import folium
-import requests
-import re
+
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster, FastMarkerCluster
 from statsmodels.tsa.statespace.varmax import VARMAX
