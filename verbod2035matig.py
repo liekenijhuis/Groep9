@@ -214,8 +214,8 @@ for col in categorieen:
 
         if col == "Elektrisch":
             # Voor Elektrisch: gewone CI berekening
-            ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 0]
-            ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:, 1]
+            ci_lower = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,0] * ci_scale
+            ci_upper = forecast_cum[col] - combined_forecast[col] + ci.iloc[:,1] * ci_scale
         else:
             # Voor Benzine/Diesel: CI behouden tot 2034, daarna constant vanaf 2035
             ci_lower = ci.iloc[:, 0].copy()
